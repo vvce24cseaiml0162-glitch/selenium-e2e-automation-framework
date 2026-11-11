@@ -1,32 +1,21 @@
-# Base image with Maven 3.9 and Eclipse Temurin JDK 17
-FROM maven:3.9.6-eclipse-temurin-17
+# Production Docker image with Maven, Eclipse Temurin JDK 17, and Google Chrome
+FROM markhobson/maven-chrome:jdk-17
 
 # Set working directory
 WORKDIR /app
 
-# Install prerequisites and Google Chrome Stable
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget \
-    curl \
-    ca-certificates \
-    fonts-liberation \
-    && wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
-    && apt-get install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb \
-    && rm -f google-chrome-stable_current_amd64.deb \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy pom.xml and pre-fetch dependencies for Docker cache optimization
+# Copy pom.xml and cache dependencies
 COPY pom.xml .
 RUN mvn dependency:go-offline -B || true
 
-# Copy source code and test suite
+# Copy project source and test suite
 COPY src ./src
 COPY testng.xml .
 
-# Volume mounts for persistence of reports and screenshots outside container
+# Volume mount for persisting ExtentReports and screenshots outside the container
 VOLUME ["/app/reports"]
 
-# Default environment configurations
+# Execution environment variables
 ENV BROWSER=chrome
 ENV HEADLESS=true
 

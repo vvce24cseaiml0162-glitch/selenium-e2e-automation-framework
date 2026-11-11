@@ -83,9 +83,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Build Docker Automation Image
         run: |
           docker build -t selenium-e2e-automation:latest .
@@ -104,4 +101,3 @@ jobs:
           name: docker-test-reports
           path: reports/
           retention-days: 14
-
