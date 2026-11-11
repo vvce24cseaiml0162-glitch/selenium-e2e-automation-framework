@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # Standalone Chrome Node (Selenium Grid)
+  selenium-chrome:
+    image: selenium/standalone-chrome:4.25.0
+    container_name: selenium-standalone-chrome
+    ports:
+      - "4444:4444"
+      - "7900:7900"
+    shm_size: 2gb
+    environment:
+      - SE_NODE_MAX_SESSIONS=2
+      - SE_NODE_SESSION_TIMEOUT=300
+      - VNC_NO_PASSWORD=1
+    networks:
+      - test-network
+
+  # Maven Test Runner Service
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: selenium-test-runner
+    depends_on:
+      - selenium-chrome
+    environment:
+      - BROWSER=chrome
+      - HEADLESS=true
+      - SELENIUM_GRID_URL=http://selenium-chrome:4444/wd/hub
+    volumes:
+      - ./reports:/app/reports
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge
+

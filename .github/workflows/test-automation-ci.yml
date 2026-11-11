@@ -1,0 +1,107 @@
+name: End-to-End Selenium Automation CI/CD
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Target Browser (chrome / firefox / edge)'
+        required: true
+        default: 'chrome'
+        type: choice
+        options:
+          - chrome
+          - firefox
+          - edge
+      headless:
+        description: 'Run in Headless Mode'
+        required: true
+        default: true
+        type: boolean
+      suiteFile:
+        description: 'TestNG Suite XML File'
+        required: true
+        default: 'testng.xml'
+
+jobs:
+  selenium-tests:
+    name: Run Selenium Tests (Ubuntu Runner)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up OpenJDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Install Google Chrome & Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable fonts-liberation
+
+      - name: Run Selenium Test Suite with Maven
+        run: |
+          mvn clean test \
+            -Dbrowser=${{ github.event.inputs.browser || 'chrome' }} \
+            -Dheadless=${{ github.event.inputs.headless || 'true' }} \
+            -DsuiteFile=${{ github.event.inputs.suiteFile || 'testng.xml' }}
+
+      - name: Upload Test Execution Reports & Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-test-reports
+          path: |
+            reports/
+            target/surefire-reports/
+          retention-days: 14
+
+      - name: Publish Test Summary to Job Summary
+        if: always()
+        run: |
+          echo "### 📊 Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Browser:** ${{ github.event.inputs.browser || 'chrome' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Headless:** ${{ github.event.inputs.headless || 'true' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Report File:** \`reports/ExtentReport.html\`" >> $GITHUB_STEP_SUMMARY
+
+  docker-execution-test:
+    name: Build & Run in Docker Container
+    runs-on: ubuntu-latest
+    needs: selenium-tests
+    if: always()
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Automation Image
+        run: |
+          docker build -t selenium-e2e-automation:latest .
+
+      - name: Execute Tests Inside Docker Container
+        run: |
+          mkdir -p reports
+          docker run --rm \
+            -v ${{ github.workspace }}/reports:/app/reports \
+            selenium-e2e-automation:latest
+
+      - name: Upload Docker Run Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-test-reports
+          path: reports/
+          retention-days: 14
+

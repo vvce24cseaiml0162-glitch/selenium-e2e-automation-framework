@@ -1,0 +1,29 @@
+# Compiled class files
+target/
+*.class
+
+# Test execution outputs generated at runtime (CI will generate and upload as artifacts)
+reports/*.html
+reports/logs/
+reports/screenshots/
+!reports/.gitkeep
+
+# TestNG output & IDE configurations
+test-output/
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Secrets & Local credentials
+.env
+*.pem
+credentials.json
+secrets.properties
