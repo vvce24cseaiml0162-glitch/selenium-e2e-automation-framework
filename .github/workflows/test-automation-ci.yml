@@ -94,6 +94,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}/reports:/app/reports \
             selenium-e2e-automation:latest
+          sudo chmod -R 777 reports || true
 
       - name: Upload Docker Run Test Reports
         if: always()

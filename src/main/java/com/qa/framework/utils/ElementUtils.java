@@ -46,10 +46,20 @@ public class ElementUtils {
         } catch (Exception ignored) {}
         element.clear();
         element.sendKeys(text);
-        if (!element.getAttribute("value").equals(text)) {
+        if (text != null && !text.isEmpty() && !element.getAttribute("value").equals(text)) {
             try {
                 JavascriptExecutor js = (JavascriptExecutor) DriverFactory.getDriver();
-                js.executeScript("arguments[0].value = arguments[1]; arguments[0].dispatchEvent(new Event('input', { bubbles: true })); arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", element, text);
+                js.executeScript(
+                    "const el = arguments[0];" +
+                    "const val = arguments[1];" +
+                    "const lastVal = el.value;" +
+                    "el.value = val;" +
+                    "const tracker = el._valueTracker;" +
+                    "if (tracker) { tracker.setValue(lastVal); }" +
+                    "el.dispatchEvent(new Event('input', { bubbles: true }));" +
+                    "el.dispatchEvent(new Event('change', { bubbles: true }));",
+                    element, text
+                );
             } catch (Exception ignored) {}
         }
     }

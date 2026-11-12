@@ -21,6 +21,7 @@ public class CheckoutInformationPage extends BasePage {
     }
 
     public CheckoutInformationPage fillInformation(String firstName, String lastName, String postalCode) {
+        WaitUtils.waitForVisibility(firstNameInput, 5);
         logger.info("Entering checkout information: {} {}, {}", firstName, lastName, postalCode);
         if (firstName != null && !firstName.isEmpty()) {
             ElementUtils.sendKeys(firstNameInput, firstName);
