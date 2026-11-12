@@ -9,11 +9,11 @@ public class CheckoutInformationPage extends BasePage {
 
     // Locators
     private final By titleSpan = By.cssSelector("[data-test='title'], .title");
-    private final By firstNameInput = By.id("first-name");
-    private final By lastNameInput = By.id("last-name");
-    private final By postalCodeInput = By.id("postal-code");
-    private final By continueButton = By.id("continue");
-    private final By cancelButton = By.id("cancel");
+    private final By firstNameInput = By.cssSelector("[data-test='firstName'], #first-name");
+    private final By lastNameInput = By.cssSelector("[data-test='lastName'], #last-name");
+    private final By postalCodeInput = By.cssSelector("[data-test='postalCode'], #postal-code");
+    private final By continueButton = By.cssSelector("[data-test='continue'], #continue");
+    private final By cancelButton = By.cssSelector("[data-test='cancel'], #cancel");
     private final By errorMessageContainer = By.cssSelector("[data-test='error']");
 
     public boolean isPageLoaded() {

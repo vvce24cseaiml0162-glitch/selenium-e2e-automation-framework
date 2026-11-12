@@ -39,10 +39,19 @@ public class ElementUtils {
     }
 
     public static void sendKeys(By locator, String text) {
-        WebElement element = WaitUtils.waitForVisibility(locator);
+        WebElement element = WaitUtils.waitForClickability(locator);
         logger.debug("Sending text '{}' to element located by: {}", text, locator);
+        try {
+            element.click();
+        } catch (Exception ignored) {}
         element.clear();
         element.sendKeys(text);
+        if (!element.getAttribute("value").equals(text)) {
+            try {
+                JavascriptExecutor js = (JavascriptExecutor) DriverFactory.getDriver();
+                js.executeScript("arguments[0].value = arguments[1]; arguments[0].dispatchEvent(new Event('input', { bubbles: true })); arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", element, text);
+            } catch (Exception ignored) {}
+        }
     }
 
     public static String getText(By locator) {
