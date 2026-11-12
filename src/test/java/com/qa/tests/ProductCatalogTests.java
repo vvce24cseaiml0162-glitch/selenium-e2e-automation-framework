@@ -54,4 +54,18 @@ public class ProductCatalogTests extends BaseTest {
         String firstItem = productsPage.getFirstProductTitle();
         Assert.assertEquals(firstItem, "Sauce Labs Onesie", "Sorting Low to High failed");
     }
+
+    @Test(priority = 5, description = "Verify sorting products by Price High to Low")
+    public void testSortProductsByPriceHighToLow() {
+        productsPage.selectSortOption("hilo");
+        String firstItem = productsPage.getFirstProductTitle();
+        Assert.assertEquals(firstItem, "Sauce Labs Fleece Jacket", "Sorting High to Low failed");
+    }
+
+    @Test(priority = 6, description = "Verify sorting products by Name A to Z")
+    public void testSortProductsByNameAtoZ() {
+        productsPage.selectSortOption("az");
+        String firstItem = productsPage.getFirstProductTitle();
+        Assert.assertEquals(firstItem, "Sauce Labs Backpack", "Sorting A to Z failed");
+    }
 }

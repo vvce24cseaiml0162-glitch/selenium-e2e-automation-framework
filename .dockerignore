@@ -1,0 +1,10 @@
+target/
+reports/
+.git/
+.github/
+*.log
+.idea/
+*.iml
+.DS_Store
+test-output/
+screenshots/

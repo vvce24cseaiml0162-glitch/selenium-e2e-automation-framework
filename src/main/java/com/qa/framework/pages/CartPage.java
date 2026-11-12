@@ -14,8 +14,8 @@ public class CartPage extends BasePage {
     private final By titleSpan = By.cssSelector("[data-test='title'], .title");
     private final By cartItems = By.className("cart_item");
     private final By cartItemNames = By.className("inventory_item_name");
-    private final By checkoutButton = By.id("checkout");
-    private final By continueShoppingButton = By.id("continue-shopping");
+    private final By checkoutButton = By.cssSelector("[data-test='checkout'], #checkout");
+    private final By continueShoppingButton = By.cssSelector("[data-test='continue-shopping'], #continue-shopping");
 
     public boolean isPageLoaded() {
         return WaitUtils.waitForUrlContains("cart.html", 5) || WaitUtils.waitForTextToBePresent(titleSpan, "Your Cart", 5);
@@ -33,23 +33,21 @@ public class CartPage extends BasePage {
     public CartPage removeProduct(String productName) {
         logger.info("Removing product from cart: {}", productName);
         String removeButtonXPath = String.format("//div[normalize-space()='%s']/ancestor::div[contains(@class,'cart_item')]//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'remove')]", productName);
-        ElementUtils.click(By.xpath(removeButtonXPath));
+        ElementUtils.clickWithJS(By.xpath(removeButtonXPath));
         return this;
     }
 
     public CheckoutInformationPage clickCheckout() {
         logger.info("Proceeding to checkout");
         ElementUtils.clickWithJS(checkoutButton);
-        CheckoutInformationPage page = new CheckoutInformationPage();
-        page.isPageLoaded();
-        return page;
+        WaitUtils.waitForUrlContains("checkout-step-one.html", 5);
+        return new CheckoutInformationPage();
     }
 
     public ProductsPage clickContinueShopping() {
         logger.info("Navigating back to continue shopping");
         ElementUtils.clickWithJS(continueShoppingButton);
-        ProductsPage page = new ProductsPage();
-        page.isPageLoaded();
-        return page;
+        WaitUtils.waitForUrlContains("inventory.html", 5);
+        return new ProductsPage();
     }
 }

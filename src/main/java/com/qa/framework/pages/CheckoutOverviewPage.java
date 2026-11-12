@@ -33,9 +33,9 @@ public class CheckoutOverviewPage extends BasePage {
 
     public CheckoutCompletePage clickFinish() {
         logger.info("Clicking finish order button");
-        ElementUtils.click(finishButton);
-        CheckoutCompletePage page = new CheckoutCompletePage();
-        return page;
+        ElementUtils.clickWithJS(finishButton);
+        WaitUtils.waitForUrlContains("checkout-complete.html", 5);
+        return new CheckoutCompletePage();
     }
 
     public ProductsPage clickCancel() {

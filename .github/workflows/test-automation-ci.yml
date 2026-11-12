@@ -90,6 +90,7 @@ jobs:
       - name: Execute Tests Inside Docker Container
         run: |
           mkdir -p reports
+          chmod -R 777 reports
           docker run --rm \
             -v ${{ github.workspace }}/reports:/app/reports \
             selenium-e2e-automation:latest

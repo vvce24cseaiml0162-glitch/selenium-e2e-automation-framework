@@ -5,6 +5,7 @@ import com.qa.framework.pages.LoginPage;
 import com.qa.framework.pages.ProductsPage;
 import com.qa.tests.base.BaseTest;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class LoginTests extends BaseTest {
@@ -81,6 +82,32 @@ public class LoginTests extends BaseTest {
         LoginPage backToLoginPage = productsPage.logout();
 
         Assert.assertTrue(backToLoginPage.isLoginPageDisplayed(), "User was not returned to login page after logout");
+    }
+
+    @DataProvider(name = "invalidLoginCredentials")
+    public Object[][] getInvalidLoginData() {
+        return new Object[][] {
+            {"locked_out_user", "secret_sauce", "Sorry, this user has been locked out"},
+            {"invalid_user_99", "secret_invalid", "Username and password do not match"},
+            {"", "secret_sauce", "Username is required"},
+            {"standard_user", "", "Password is required"}
+        };
+    }
+
+    @Test(priority = 7, dataProvider = "invalidLoginCredentials", description = "Data-driven verification of login failure scenarios")
+    public void testDataDrivenLoginValidation(String username, String password, String expectedErrorMessage) {
+        LoginPage loginPage = new LoginPage();
+        if (!username.isEmpty()) {
+            loginPage.enterUsername(username);
+        }
+        if (!password.isEmpty()) {
+            loginPage.enterPassword(password);
+        }
+        loginPage.clickLoginExpectingFailure();
+
+        Assert.assertTrue(loginPage.isErrorMessageDisplayed(), "Error message should be displayed");
+        Assert.assertTrue(loginPage.getErrorMessage().contains(expectedErrorMessage),
+                String.format("Expected '%s' in error message but got '%s'", expectedErrorMessage, loginPage.getErrorMessage()));
     }
 }
 

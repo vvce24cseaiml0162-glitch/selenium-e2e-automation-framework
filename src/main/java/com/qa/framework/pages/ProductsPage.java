@@ -13,16 +13,16 @@ public class ProductsPage extends BasePage {
 
     // Locators
     private final By titleSpan = By.cssSelector("[data-test='title'], .title");
-    private final By inventoryItems = By.className("inventory_item");
-    private final By shoppingCartBadge = By.className("shopping_cart_badge");
-    private final By shoppingCartLink = By.className("shopping_cart_link");
+    private final By inventoryItems = By.cssSelector("[data-test='inventory-item'], .inventory_item");
+    private final By shoppingCartBadge = By.cssSelector("[data-test='shopping-cart-badge'], .shopping_cart_badge");
+    private final By shoppingCartLink = By.cssSelector("[data-test='shopping-cart-link'], .shopping_cart_link");
     private final By sortSelect = By.cssSelector("[data-test='product-sort-container']");
     private final By burgerMenuButton = By.id("react-burger-menu-btn");
     private final By logoutSidebarLink = By.id("logout_sidebar_link");
-    private final By itemNames = By.className("inventory_item_name");
+    private final By itemNames = By.cssSelector("[data-test='inventory-item-name'], .inventory_item_name");
 
     public boolean isPageLoaded() {
-        return WaitUtils.waitForUrlContains("inventory.html", 5) || WaitUtils.waitForTextToBePresent(titleSpan, "Products", 5);
+        return WaitUtils.waitForUrlContains("inventory.html", 10) || WaitUtils.waitForTextToBePresent(titleSpan, "Products", 10);
     }
 
     public int getProductCount() {
@@ -76,9 +76,8 @@ public class ProductsPage extends BasePage {
     public CartPage openCart() {
         logger.info("Opening shopping cart");
         ElementUtils.clickWithJS(shoppingCartLink);
-        CartPage cartPage = new CartPage();
-        cartPage.isPageLoaded();
-        return cartPage;
+        WaitUtils.waitForUrlContains("cart.html", 5);
+        return new CartPage();
     }
 
     public ProductsPage selectSortOption(String sortOptionValue) {

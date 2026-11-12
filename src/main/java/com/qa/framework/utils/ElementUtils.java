@@ -18,18 +18,24 @@ public class ElementUtils {
         WebElement element = WaitUtils.waitForClickability(locator);
         logger.debug("Clicking on element located by: {}", locator);
         try {
+            JavascriptExecutor js = (JavascriptExecutor) DriverFactory.getDriver();
+            js.executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
             element.click();
         } catch (Exception e) {
             logger.warn("Standard click failed on {}. Retrying with JavaScript click.", locator);
-            clickWithJS(locator);
+            clickWithJS(element);
         }
     }
 
     public static void clickWithJS(By locator) {
+        WebElement element = WaitUtils.waitForPresence(locator);
+        clickWithJS(element);
+    }
+
+    public static void clickWithJS(WebElement element) {
         WebDriver driver = DriverFactory.getDriver();
-        WebElement element = driver.findElement(locator);
         JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("arguments[0].click();", element);
+        js.executeScript("arguments[0].scrollIntoView({block: 'center'}); arguments[0].click();", element);
     }
 
     public static void sendKeys(By locator, String text) {
@@ -85,7 +91,90 @@ public class ElementUtils {
         WebDriver driver = DriverFactory.getDriver();
         WebElement element = driver.findElement(locator);
         JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("arguments[0].scrollIntoView(true);", element);
+        js.executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
+    }
+
+    // --- Actions Class Methods ---
+    public static void hoverOverElement(By locator) {
+        WebDriver driver = DriverFactory.getDriver();
+        WebElement element = WaitUtils.waitForVisibility(locator);
+        new org.openqa.selenium.interactions.Actions(driver).moveToElement(element).perform();
+        logger.debug("Hovered over element located by: {}", locator);
+    }
+
+    public static void doubleClick(By locator) {
+        WebDriver driver = DriverFactory.getDriver();
+        WebElement element = WaitUtils.waitForClickability(locator);
+        new org.openqa.selenium.interactions.Actions(driver).doubleClick(element).perform();
+        logger.debug("Double clicked on element located by: {}", locator);
+    }
+
+    public static void rightClick(By locator) {
+        WebDriver driver = DriverFactory.getDriver();
+        WebElement element = WaitUtils.waitForClickability(locator);
+        new org.openqa.selenium.interactions.Actions(driver).contextClick(element).perform();
+        logger.debug("Right clicked on element located by: {}", locator);
+    }
+
+    // --- Alert Handling Methods ---
+    public static void acceptAlert() {
+        WebDriver driver = DriverFactory.getDriver();
+        org.openqa.selenium.support.ui.WebDriverWait wait = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5));
+        org.openqa.selenium.Alert alert = wait.until(org.openqa.selenium.support.ui.ExpectedConditions.alertIsPresent());
+        alert.accept();
+        logger.debug("Accepted browser alert");
+    }
+
+    public static void dismissAlert() {
+        WebDriver driver = DriverFactory.getDriver();
+        org.openqa.selenium.support.ui.WebDriverWait wait = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5));
+        org.openqa.selenium.Alert alert = wait.until(org.openqa.selenium.support.ui.ExpectedConditions.alertIsPresent());
+        alert.dismiss();
+        logger.debug("Dismissed browser alert");
+    }
+
+    public static String getAlertText() {
+        WebDriver driver = DriverFactory.getDriver();
+        org.openqa.selenium.support.ui.WebDriverWait wait = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5));
+        org.openqa.selenium.Alert alert = wait.until(org.openqa.selenium.support.ui.ExpectedConditions.alertIsPresent());
+        return alert.getText();
+    }
+
+    // --- Frame Handling Methods ---
+    public static void switchToFrame(By frameLocator) {
+        WebDriver driver = DriverFactory.getDriver();
+        WebElement frameElement = WaitUtils.waitForVisibility(frameLocator);
+        driver.switchTo().frame(frameElement);
+        logger.debug("Switched to iframe: {}", frameLocator);
+    }
+
+    public static void switchToFrame(int frameIndex) {
+        DriverFactory.getDriver().switchTo().frame(frameIndex);
+        logger.debug("Switched to iframe index: {}", frameIndex);
+    }
+
+    public static void switchToDefaultContent() {
+        DriverFactory.getDriver().switchTo().defaultContent();
+        logger.debug("Switched back to default content");
+    }
+
+    // --- Window / Tab Handling Methods ---
+    public static void switchToWindowByTitle(String expectedTitle) {
+        WebDriver driver = DriverFactory.getDriver();
+        String currentWindow = driver.getWindowHandle();
+        for (String windowHandle : driver.getWindowHandles()) {
+            driver.switchTo().window(windowHandle);
+            if (driver.getTitle().contains(expectedTitle)) {
+                return;
+            }
+        }
+        driver.switchTo().window(currentWindow);
+    }
+
+    public static void closeChildWindowAndReturn(String parentWindowHandle) {
+        WebDriver driver = DriverFactory.getDriver();
+        driver.close();
+        driver.switchTo().window(parentWindowHandle);
     }
 }
 

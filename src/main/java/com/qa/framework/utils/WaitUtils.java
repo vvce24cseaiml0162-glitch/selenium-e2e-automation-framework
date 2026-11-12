@@ -22,6 +22,14 @@ public class WaitUtils {
         return new WebDriverWait(driver, Duration.ofSeconds(timeoutInSeconds));
     }
 
+    public static WebElement waitForPresence(By locator, int timeoutInSeconds) {
+        return getWait(timeoutInSeconds).until(ExpectedConditions.presenceOfElementLocated(locator));
+    }
+
+    public static WebElement waitForPresence(By locator) {
+        return waitForPresence(locator, getDefaultWaitTimeout());
+    }
+
     public static WebElement waitForVisibility(By locator, int timeoutInSeconds) {
         return getWait(timeoutInSeconds).until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
@@ -39,7 +47,11 @@ public class WaitUtils {
     }
 
     public static boolean waitForInvisibility(By locator, int timeoutInSeconds) {
-        return getWait(timeoutInSeconds).until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        try {
+            return Boolean.TRUE.equals(getWait(timeoutInSeconds).until(ExpectedConditions.invisibilityOfElementLocated(locator)));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static boolean waitForInvisibility(By locator) {
@@ -55,7 +67,11 @@ public class WaitUtils {
     }
 
     public static boolean waitForUrlContains(String fraction, int timeoutInSeconds) {
-        return getWait(timeoutInSeconds).until(ExpectedConditions.urlContains(fraction));
+        try {
+            return Boolean.TRUE.equals(getWait(timeoutInSeconds).until(ExpectedConditions.urlContains(fraction)));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static boolean waitForUrlContains(String fraction) {
@@ -63,7 +79,11 @@ public class WaitUtils {
     }
 
     public static boolean waitForTextToBePresent(By locator, String text, int timeoutInSeconds) {
-        return getWait(timeoutInSeconds).until(ExpectedConditions.textToBePresentInElementLocated(locator, text));
+        try {
+            return Boolean.TRUE.equals(getWait(timeoutInSeconds).until(ExpectedConditions.textToBePresentInElementLocated(locator, text)));
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
 
